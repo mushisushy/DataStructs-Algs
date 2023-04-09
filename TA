@@ -1,0 +1,142 @@
+#include <iostream>
+#include <string>
+
+template <typename T> class Vector {
+public:
+  Vector() {
+    T *new_memory_ = new T[2];
+    v_data_ = new_memory_;
+    v_capacity_ = 2;
+  }
+
+  ~Vector() { delete[] v_data_; }
+
+  void Resize(size_t new_capacity_) {
+    T *new_memory_ = new T[new_capacity_];
+
+    if (new_capacity_ < v_size_) {
+      v_size_ = new_capacity_;
+    }
+
+    for (size_t i = 0; i < v_size_; i++) {
+      new_memory_[i] = v_data_[i];
+    }
+
+    delete[] v_data_;
+    v_data_ = new_memory_;
+    v_capacity_ = new_capacity_;
+    std::cout << "ok"
+              << "\n";
+  }
+
+  void Push(const T &value_) {
+    if (v_size_ >= v_capacity_) {
+
+      Resize(v_capacity_ + v_capacity_);
+
+      v_data_[v_size_] = value_;
+      v_size_++;
+    }
+
+    else {
+      v_data_[v_size_] = value_;
+      v_size_++;
+      std::cout << "ok\n";
+    }
+  }
+
+  void Size() { std::cout << v_size_ << "\n"; }
+
+  void Capacity() { std::cout << v_capacity_ << "\n"; }
+
+  void AtIndex(size_t index_) {
+    if (index_ >= v_size_) {
+      std::cout << "error"
+                << "\n";
+    } else {
+      std::cout << v_data_[index_] << "\n";
+    }
+  }
+
+  void Pop() {
+    if (v_size_ == 0) {
+      std::cout << "error"
+                << "\n";
+    }
+
+    else {
+      std::cout << v_data_[v_size_ - 1] << "\n";
+      v_data_[v_size_ - 1].~T();
+      v_size_--;
+      if (v_capacity_ >= 2 * v_size_) {
+        v_capacity_ = v_capacity_ / 2;
+      }
+    }
+  }
+
+  void Clear() {
+    for (int i = 0; i < v_size_; i++) {
+      v_data_[i].~T();
+    }
+    v_size_ = 0;
+    v_capacity_ = 1;
+    std::cout << "ok\n";
+  }
+  void Print() {
+    for (int i = 0; i < v_size_; i++) {
+      std::cout << v_data_[i] << " ";
+    }
+    std::cout << "\n";
+  }
+
+  void Exit() { std::cout << "bye"; }
+
+private:
+  T *v_data_ = nullptr;
+  size_t v_size_ = 0;
+  size_t v_capacity_ = 0;
+};
+
+int main() {
+  Vector<int> iV;
+  std::string operation;
+  int value;
+  while (operation != "exit" or operation != "EXIT") {
+    std::cin >> operation;
+    if (operation == "push") {
+      std::cin >> value;
+      iV.Push(value);
+    }
+
+    if (operation == "pop") {
+      iV.Pop();
+    }
+
+    if (operation == "size") {
+      iV.Size();
+    }
+
+    if (operation == "capacity") {
+      iV.Capacity();
+    }
+
+    if (operation == "resize") {
+      std::cin >> value;
+      iV.Resize(value);
+    }
+
+    if (operation == "clear") {
+      iV.Clear();
+    }
+
+    if (operation == "at") {
+      std::cin >> value;
+      iV.AtIndex(value);
+    }
+
+    if (operation == "exit") {
+      iV.Exit();
+      break;
+    }
+  }
+}
