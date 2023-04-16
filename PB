@@ -6,39 +6,40 @@ struct Node {
   struct Node *next;
 };
 
-struct Node *NewNodeMemory() {
-  struct Node *temp = new Node;
-  return temp;
-};
-
 class List {
 private:
   struct Node *head_ = nullptr;
 
 public:
-  void Insert(char element_) {
-    struct Node *temp_;
-    struct Node *traverse_;
 
-    temp_ = NewNodeMemory();
-    temp_->value = element_;
-    temp_->next = nullptr;
-
-    if (head_ == nullptr) {
-      head_ = temp_;
-    }
-
-    else {
-      traverse_ = head_;
-      while (traverse_->next != nullptr) {
-        traverse_ = traverse_->next;
-      }
-
-      traverse_->next = temp_;
+  ~List() {
+    Node *current = head_;
+    while (current != nullptr) {
+      Node *next = current->next;
+      delete current;
+      current = next;
     }
   }
 
-  void RevList() {
+  void Insert(std::string sequence, int i = 0) {
+  if (i >= sequence.length()) {
+    return;
+  }
+  Node* temp_ = new Node{ std::string(1, sequence[i]), nullptr };
+  if (head_ == nullptr) {
+    head_ = temp_;
+  } else {
+    Node* traverse_ = head_;
+    while (traverse_->next != nullptr) {
+      traverse_ = traverse_->next;
+    }
+    traverse_->next = temp_;
+  }
+  Insert(sequence, ++i);
+}
+
+
+  void Reverse() {
     struct Node *prev_ = nullptr;
     struct Node *current_ = head_;
     struct Node *traverse_ = nullptr;
@@ -51,7 +52,7 @@ public:
     head_ = prev_;
   }
 
-  void PrintRevList() {
+  void Print() {
     struct Node *traverse_ = head_;
     while (traverse_ != nullptr) {
 
@@ -61,18 +62,11 @@ public:
   }
 };
 
-int main()
-
-{
+int main(){
   std::string sequence;
   std::getline(std::cin, sequence);
-  int n = sequence.length();
   List mylist;
-
-  for (int i = 0; i < n; i++) {
-    mylist.Insert(sequence[i]);
-  }
-
-  mylist.RevList();
-  mylist.PrintRevList();
+  mylist.Insert(sequence);
+  mylist.Reverse();
+  mylist.Print();
 }
