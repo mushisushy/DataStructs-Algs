@@ -25,8 +25,6 @@ public:
     delete[] v_data_;
     v_data_ = new_memory_;
     v_capacity_ = new_capacity_;
-    std::cout << "ok"
-              << "\n";
   }
 
   void Push(const T &value_) {
@@ -41,61 +39,45 @@ public:
     else {
       v_data_[v_size_] = value_;
       v_size_++;
-      std::cout << "ok\n";
     }
   }
 
-  void Size() { std::cout << v_size_ << "\n"; }
+  size_t Size() {
+      return v_size_;}
 
-  void Capacity() { std::cout << v_capacity_ << "\n"; }
 
-  void AtIndex(size_t index_) {
-    if (index_ >= v_size_) {
-      std::cout << "error"
-                << "\n";
-    } else {
-      std::cout << v_data_[index_] << "\n";
-    }
-  }
+  size_t Capacity() {
+      return v_capacity_; }
 
-  void Pop() {
-    if (v_size_ == 0) {
-      std::cout << "error"
-                << "\n";
+
+  T AtIndex(size_t index_) {
+      return v_data_[index_];
     }
 
-    else {
-      std::cout << v_data_[v_size_ - 1] << "\n";
-      v_data_[v_size_ - 1].~T();
+
+  T Pop() {
+      T a = v_data_[v_size_ - 1];
       v_size_--;
       if (v_capacity_ >= 2 * v_size_) {
-        v_capacity_ = v_capacity_ / 2;
+        Resize(v_capacity_ / 2);
       }
+      return a;
     }
-  }
 
   void Clear() {
-    for (int i = 0; i < v_size_; i++) {
-      v_data_[i].~T();
-    }
+    delete v_data_;
     v_size_ = 0;
     v_capacity_ = 1;
-    std::cout << "ok\n";
+    v_data_= new T[v_capacity_];
   }
-  void Print() {
-    for (int i = 0; i < v_size_; i++) {
-      std::cout << v_data_[i] << " ";
-    }
-    std::cout << "\n";
-  }
-
-  void Exit() { std::cout << "bye"; }
 
 private:
   T *v_data_ = nullptr;
   size_t v_size_ = 0;
   size_t v_capacity_ = 0;
 };
+
+
 
 int main() {
   Vector<int> iV;
@@ -106,37 +88,35 @@ int main() {
     if (operation == "push") {
       std::cin >> value;
       iV.Push(value);
-    }
-
-    if (operation == "pop") {
-      iV.Pop();
-    }
-
-    if (operation == "size") {
-      iV.Size();
-    }
-
-    if (operation == "capacity") {
-      iV.Capacity();
-    }
-
-    if (operation == "resize") {
-      std::cin >> value;
-      iV.Resize(value);
-    }
-
-    if (operation == "clear") {
-      iV.Clear();
-    }
-
-    if (operation == "at") {
-      std::cin >> value;
-      iV.AtIndex(value);
-    }
-
-    if (operation == "exit") {
-      iV.Exit();
-      break;
+      std::cout << "ok\n";
+    } else if (operation == "pop") {
+       if(iV.Size()==0){
+          std::cout<<"error";
+       } else {
+        std::cout<<iV.Pop()<<"\n";
+       }
+    } else if (operation == "size") {
+        std::cout<<iV.Size()<<"\n";
+    } else if (operation == "capacity") {
+        std::cout<<iV.Capacity()<<"\n";
+    } else if (operation == "resize") {
+        std::cin >> value;
+        iV.Resize(value);
+        std::cout<<"ok\n";
+    } else if (operation == "clear") {
+        iV.Clear();
+        std::cout << "ok\n";
+    } else if (operation == "at") {
+        std::cin >> value;
+        if (value >= iV.Size()) {
+          std::cout<<("error\n");
+         } else {
+            std::cout<<iV.AtIndex(value)<<"\n";
+         }
+    } else if (operation == "exit") {
+       std::cout<<"bye\n";
+       break;
     }
   }
 }
+
