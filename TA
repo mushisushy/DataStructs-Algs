@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include <string>
 
 template <typename T> class Vector {
@@ -90,10 +91,10 @@ int main() {
       iV.Push(value);
       std::cout << "ok\n";
     } else if (operation == "pop") {
-       if(iV.Size()==0){
-          std::cout<<"error";
+       if(iV.Size() == 0){
+          std::cout << "error";
        } else {
-        std::cout<<iV.Pop()<<"\n";
+        std::cout << iV.Pop()<<"\n";
        }
     } else if (operation == "size") {
         std::cout<<iV.Size()<<"\n";
@@ -109,12 +110,12 @@ int main() {
     } else if (operation == "at") {
         std::cin >> value;
         if (value >= iV.Size()) {
-          std::cout<<("error\n");
+          std::cout << ("error\n");
          } else {
-            std::cout<<iV.AtIndex(value)<<"\n";
+            std::cout << iV.AtIndex(value)<<"\n";
          }
     } else if (operation == "exit") {
-       std::cout<<"bye\n";
+       std::cout << "bye\n";
        break;
     }
   }
