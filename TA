@@ -35,12 +35,10 @@ public:
 
       v_data_[v_size_] = value_;
       v_size_++;
-    }
-
-    else {
+    } else {
       v_data_[v_size_] = value_;
       v_size_++;
-    }
+           }
   }
 
   size_t Size() {
