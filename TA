@@ -1,0 +1,122 @@
+#include <iostream>
+#include <string>
+
+template <typename T> class Vector {
+public:
+  Vector() {
+    T *new_memory_ = new T[2];
+    v_data_ = new_memory_;
+    v_capacity_ = 2;
+  }
+
+  ~Vector() { delete[] v_data_; }
+
+  void Resize(size_t new_capacity_) {
+    T *new_memory_ = new T[new_capacity_];
+
+    if (new_capacity_ < v_size_) {
+      v_size_ = new_capacity_;
+    }
+
+    for (size_t i = 0; i < v_size_; i++) {
+      new_memory_[i] = v_data_[i];
+    }
+
+    delete[] v_data_;
+    v_data_ = new_memory_;
+    v_capacity_ = new_capacity_;
+  }
+
+  void Push(const T &value_) {
+    if (v_size_ >= v_capacity_) {
+
+      Resize(v_capacity_ + v_capacity_);
+
+      v_data_[v_size_] = value_;
+      v_size_++;
+    }
+
+    else {
+      v_data_[v_size_] = value_;
+      v_size_++;
+    }
+  }
+
+  size_t Size() {
+      return v_size_;}
+
+
+  size_t Capacity() {
+      return v_capacity_; }
+
+
+  T AtIndex(size_t index_) {
+      return v_data_[index_];
+    }
+
+
+  T Pop() {
+      T a = v_data_[v_size_ - 1];
+      v_size_--;
+      if (v_capacity_ >= 2 * v_size_) {
+        Resize(v_capacity_ / 2);
+      }
+      return a;
+    }
+
+  void Clear() {
+    delete v_data_;
+    v_size_ = 0;
+    v_capacity_ = 1;
+    v_data_= new T[v_capacity_];
+  }
+
+private:
+  T *v_data_ = nullptr;
+  size_t v_size_ = 0;
+  size_t v_capacity_ = 0;
+};
+
+
+
+int main() {
+  Vector<int> iV;
+  std::string operation;
+  int value;
+  while (operation != "exit" or operation != "EXIT") {
+    std::cin >> operation;
+    if (operation == "push") {
+      std::cin >> value;
+      iV.Push(value);
+      std::cout << "ok\n";
+    } else if (operation == "pop") {
+       if(iV.Size()==0){
+          std::cout<<"error";
+       } else {
+        std::cout<<iV.Pop()<<"\n";
+       }
+    } else if (operation == "size") {
+        std::cout<<iV.Size()<<"\n";
+    } else if (operation == "capacity") {
+        std::cout<<iV.Capacity()<<"\n";
+    } else if (operation == "resize") {
+        std::cin >> value;
+        iV.Resize(value);
+        std::cout<<"ok\n";
+    } else if (operation == "clear") {
+        iV.Clear();
+        std::cout << "ok\n";
+    } else if (operation == "at") {
+        std::cin >> value;
+        if (value >= iV.Size()) {
+          std::cout<<("error\n");
+         } else {
+            std::cout<<iV.AtIndex(value)<<"\n";
+         }
+    } else if (operation == "exit") {
+       std::cout<<"bye\n";
+       break;
+    }
+  }
+}
+
