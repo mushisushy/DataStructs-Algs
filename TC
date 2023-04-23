@@ -1,0 +1,125 @@
+#include <iostream>
+
+#include <string>
+
+template <typename T>
+class Stack {
+
+public:
+  Stack() {
+    T *memory_ = new T[2];
+    data_ = memory_;
+    capacity_ = 2;
+  }
+
+
+  ~Stack() {
+      delete[] data_;
+  }
+
+
+  void Push(const T &value_) {
+    if (size_ >= capacity_) {
+
+      Resize(capacity_ + capacity_);
+    }
+      data_[size_] = value_;
+      size_++;
+  }
+
+
+  T Pop() {
+      if(size_ == 0){
+            throw"Empty stack alert";
+      }
+      T a = data_[size_ - 1];
+      size_--;
+      if ( 256 < capacity_ && size_ == capacity_/2) {
+        Resize(capacity_ / 2);
+      }
+      return a;
+  }
+
+  T Back() {
+      if(size_ == 0){
+        throw"Empty stack alert";
+      }
+      T a = data_[size_ - 1];
+      return a;
+  }
+
+
+  size_t Size() {
+      return size_;
+  }
+
+  size_t Capacity() {
+      return capacity_;
+  }
+
+
+  void Clear() {
+    delete[] data_;
+    size_ = 0;
+    capacity_ = 1;
+    data_= new T[capacity_];
+  }
+
+  void Resize(size_t new_capacity_) {
+    T *memory_ = new T[new_capacity_];
+
+    if (new_capacity_ < size_) {
+      size_ = new_capacity_;
+    }
+
+    for (size_t i = 0; i < size_; i++) {
+      memory_[i] = data_[i];
+    }
+
+    delete[] data_;
+    data_ = memory_;
+    capacity_ = new_capacity_;
+  }
+
+
+private:
+  T *data_ = nullptr;
+  size_t size_ = 0;
+  size_t capacity_ = 0;
+};
+
+int main() {
+  Stack<int> S;
+  std::string operation;
+  int value;
+  while (operation != "exit" or operation != "EXIT") {
+    std::cin >> operation;
+    if (operation == "push") {
+      std::cin >> value;
+      S.Push(value);
+      std::cout << "ok\n";
+    } else if (operation == "pop") {
+        try{
+          std::cout << S.Pop()<<"\n";
+        } catch(...){
+          std::cout << "error\n";
+        }
+    } else if (operation == "back") {
+        try{
+           std::cout << S.Back()<<"\n";
+        } catch(...){
+           std::cout << "error\n";
+        }
+    } else if (operation == "capacity") {
+        std::cout<<S.Capacity()<<"\n";
+    } else if (operation == "size") {
+        std::cout<<S.Size()<<"\n";
+    } else if (operation == "clear") {
+        S.Clear();
+        std::cout << "ok\n";
+    } else if (operation == "exit") {
+        std::cout<<"bye\n";
+        break;
+    }
+  }
+}
