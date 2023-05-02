@@ -126,7 +126,7 @@ void UsingEnqueue(QueueMin<int>& min_queue) {
 int main() {
   QueueMin<int> min_queue;
   std::string operation;
-  int value, n;
+  int n;
   std::cin >> n;
   for (int i = 1; i <= n; i++) {
     std::cin >> operation;
