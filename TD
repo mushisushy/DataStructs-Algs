@@ -1,0 +1,144 @@
+#include <algorithm>
+#include <iostream>
+#include <stack>
+
+using std::stack;
+template <class T>
+class MinStack {
+ private:
+  struct Pair {
+    T value;
+    T min_value;
+    Pair(T value, T min_value) {
+      this->value = value;
+      this->min_value = min_value;
+    };
+  };
+  stack<Pair> stack_;
+
+ public:
+  void Push(const T& value) {
+    stack_.emplace(value, stack_.empty()
+                              ? value
+                              : std::min(value, stack_.top().min_value));
+  }
+
+  T GetMin() { return stack_.top().min_value; }
+  void Pop() { stack_.pop(); }
+  bool Empty() { return stack_.empty(); }
+  Pair Top() { return stack_.top(); }
+  size_t Size() { return stack_.size(); }
+};
+
+template <typename T>
+class QueueMin {
+ private:
+  MinStack<T> s_enq_;
+  MinStack<T> s_deq_;
+
+ public:
+  void Enqueue(const T& value) { s_enq_.Push(value); }
+
+  T Dequeue() {
+    if (s_deq_.Empty()) {
+      while (!s_enq_.Empty()) {
+        s_deq_.Push(s_enq_.Top().value);
+        s_enq_.Pop();
+      }
+    }
+
+    if (s_deq_.Empty()) {
+      throw "Empty queue";
+    }
+
+    T a = s_deq_.Top().value;
+    s_deq_.Pop();
+    return a;
+  }
+
+  T Front() {
+    if (s_deq_.Empty()) {
+      while (!s_enq_.Empty()) {
+        s_deq_.Push(s_enq_.Top().value);
+        s_enq_.Pop();
+      }
+    }
+
+    if (s_deq_.Empty()) {
+      throw "Empty queue";
+    }
+
+    return s_deq_.Top().value;
+  }
+
+  size_t Size() { return s_enq_.Size() + s_deq_.Size(); }
+
+  bool Empty() { return s_enq_.Empty() && s_deq_.Empty(); }
+
+  void Clear() {
+    while (!s_enq_.Empty()) {
+      s_enq_.Pop();
+    }
+
+    while (!s_deq_.Empty()) {
+      s_deq_.Pop();
+    }
+  }
+
+  T Min() {
+    if (s_enq_.Empty() && s_deq_.Empty()) {
+      throw "Empty queue";
+    }
+
+    if (s_enq_.Empty()) {
+      return s_deq_.GetMin();
+    }
+
+    if (s_deq_.Empty()) {
+      return s_enq_.GetMin();
+    }
+
+    return std::min(s_enq_.GetMin(), s_deq_.GetMin());
+  }
+};
+
+void Checker(QueueMin<int>& min_queue, std::string operation) {
+  try {
+    if (operation == "dequeue") {
+      std::cout << min_queue.Dequeue() << "\n";
+    } else if (operation == "front") {
+      std::cout << min_queue.Front() << "\n";
+    } else if (operation == "min") {
+      std::cout << min_queue.Min() << "\n";
+    }
+  } catch (...) {
+    std::cout << "error\n";
+  }
+}
+
+void UsingEnqueue(QueueMin<int>& min_queue) {
+  int value;
+  std::cin >> value;
+  min_queue.Enqueue(value);
+  std::cout << "ok\n";
+}
+
+int main() {
+  QueueMin<int> min_queue;
+  std::string operation;
+  int value, n;
+  std::cin >> n;
+  for (int i = 1; i <= n; i++) {
+    std::cin >> operation;
+    if (operation == "enqueue") {
+      UsingEnqueue(min_queue);
+    } else if (operation == "size") {
+      std::cout << min_queue.Size() << "\n";
+    } else if (operation == "clear") {
+      min_queue.Clear();
+      std::cout << "ok\n";
+    } else {
+      Checker(min_queue, operation);
+    }
+  }
+}
