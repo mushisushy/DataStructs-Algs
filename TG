@@ -14,24 +14,24 @@ long long int Max(const std::vector<long long int>& arr) {
 
 void CountingSort(std::vector<long long int>& arr, long long int exp) {
   const int kN = arr.size();
-  std::vector<long long int> output(kN);
-  const long long int kRadix = 10;
+  const long long int kRadix = 256;
   std::vector<long long int> count(kRadix, 0);
+  std::vector<long long int> output(kN);
 
-  for (int i = 0; i < kN; i++) {
-    count[(arr[i] / exp) % kRadix]++;
+  for (int i = 0; i < kN; ++i) {
+    count[(arr[i] >> exp) & (kRadix - 1)]++;
   }
 
-  for (int i = 1; i < kRadix; i++) {
+  for (int i = 1; i < kRadix; ++i) {
     count[i] += count[i - 1];
   }
 
-  for (int i = kN - 1; i >= 0; i--) {
-    output[count[(arr[i] / exp) % kRadix] - 1] = arr[i];
-    count[(arr[i] / exp) % kRadix]--;
+  for (int i = kN - 1; i >= 0; --i) {
+    output[count[(arr[i] >> exp) & (kRadix - 1)] - 1] = arr[i];
+    count[(arr[i] >> exp) & (kRadix - 1)]--;
   }
 
-  for (int i = 0; i < kN; i++) {
+  for (int i = 0; i < kN; ++i) {
     arr[i] = output[i];
   }
 }
@@ -39,7 +39,7 @@ void CountingSort(std::vector<long long int>& arr, long long int exp) {
 void RadixSort(std::vector<long long int>& arr) {
   long long int max_val = Max(arr);
 
-  for (long long int exp = 1; max_val / exp > 0; exp *= 10) {
+  for (long long int exp = 0; max_val >> exp > 0; exp += 8) {
     CountingSort(arr, exp);
   }
 }
