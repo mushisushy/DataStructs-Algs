@@ -1,0 +1,167 @@
+#include <iostream>
+
+class AVL {
+ private:
+  struct Node {
+    int acc_i;
+    int ht;
+    Node* left;
+    Node* right;
+  };
+
+  Node* root_;
+
+  int GetHt(Node* node) {
+    if (node == nullptr) {
+      return 0;
+    }
+    return node->ht;
+  }
+
+  int BFact(Node* node) {
+    if (node == nullptr) {
+      return 0;
+    }
+    return GetHt(node->left) - GetHt(node->right);
+  }
+
+  void UpdHt(Node* node) {
+    if (node == nullptr) {
+      return;
+    }
+    node->ht = std::max(GetHt(node->left), GetHt(node->right)) + 1;
+  }
+
+  Node* RLeft(Node* node) {
+    Node* new_root = node->right;
+    node->right = new_root->left;
+    new_root->left = node;
+
+    UpdHt(node);
+    UpdHt(new_root);
+
+    return new_root;
+  }
+
+  Node* RRight(Node* node) {
+    Node* new_root = node->left;
+    node->left = new_root->right;
+    new_root->right = node;
+
+    UpdHt(node);
+    UpdHt(new_root);
+
+    return new_root;
+  }
+
+  Node* Balance(Node* node) {
+    UpdHt(node);
+
+    int b_fact = BFact(node);
+
+    if (b_fact > 1) {
+      if (BFact(node->left) < 0) {
+        node->left = RLeft(node->left);
+      }
+      return RRight(node);
+    }
+
+    if (b_fact < -1) {
+      if (BFact(node->right) > 0) {
+        node->right = RRight(node->right);
+      }
+      return RLeft(node);
+    }
+
+    return node;
+  }
+
+  Node* Add(Node* node, int acc_i) {
+    if (node == nullptr) {
+      Node* new_node = new Node;
+      new_node->acc_i = acc_i;
+      new_node->ht = 1;
+      new_node->left = nullptr;
+      new_node->right = nullptr;
+      return new_node;
+    }
+
+    if (acc_i < node->acc_i) {
+      node->left = Add(node->left, acc_i);
+    } else if (acc_i > node->acc_i) {
+      node->right = Add(node->right, acc_i);
+    }
+
+    return Balance(node);
+  }
+
+  int Next(Node* node, int i) {
+    Node* current = node;
+    Node* result = nullptr;
+
+    while (current != nullptr) {
+      if (current->acc_i >= i) {
+        result = current;
+        current = current->left;
+      } else {
+        current = current->right;
+      }
+    }
+
+    if (result != nullptr) {
+      return result->acc_i;
+    }
+
+    return -1;
+  }
+
+  void DelAvl(Node* node) {
+    if (node == nullptr) {
+      return;
+    }
+
+    DelAvl(node->left);
+    DelAvl(node->right);
+    delete node;
+  }
+
+ public:
+  AVL() : root_(nullptr) {}
+
+  void Add(int acc_i) { root_ = Add(root_, acc_i); }
+
+  int Find(int i) { return Next(root_, i); }
+
+  ~AVL() { DelAvl(root_); }
+};
+
+void Menu(AVL& myavl, int n) {
+  int q;
+  bool a = true;
+  char operation;
+  int value;
+  for (int i = 0; i < n; i++) {
+    std::cin >> operation >> value;
+
+    if (operation == '+') {
+      if (!a) {
+        value = (q + value) % 1000000000;
+      }
+      myavl.Add(value);
+      a = true;
+    }
+
+    else {
+      q = myavl.Find(value);
+      std::cout << q << "\n";
+      a = false;
+    }
+  }
+}
+
+int main() {
+  AVL avl;
+  int n;
+  std::cin >> n;
+  Menu(avl, n);
+}
