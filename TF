@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+
+long long int Partition(std::vector<long long int>& arr, long long int low,
+                        long long int high) {
+  long long int piv = arr[low];
+  long long int i = low - 1;
+  long long int j = high + 1;
+
+  while (true) {
+    do {
+      i++;
+    } while (arr[i] < piv);
+
+    do {
+      j--;
+    } while (arr[j] > piv);
+
+    if (j <= i) {
+      return j;
+    }
+    std::swap(arr[i], arr[j]);
+  }
+}
+
+void QuickSort(std::vector<long long int>& arr, long long int low,
+               long long int high) {
+  if (low < high) {
+    long long int piv = Partition(arr, low, high);
+    QuickSort(arr, low, piv);
+    QuickSort(arr, piv + 1, high);
+  }
+}
+
+int main() {
+  int N;
+  std::cin >> N;
+  std::vector<long long int> ar(N);
+  for (int i = 0; i < N; i++) {
+    std::cin >> ar[i];
+  }
+
+  QuickSort(ar, 0, N - 1);
+
+  for (int i = 0; i < N; i++) {
+    std::cout << ar[i] << " ";
+  }
+}
