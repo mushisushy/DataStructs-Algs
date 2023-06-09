@@ -1,9 +1,15 @@
 #include <iostream>
 
+template <class T>
+T Max(const T& a, const T& b) {
+  return (a > b) ? a : b;
+}
+
+template <class T>
 class AVL {
  private:
   struct Node {
-    int acc_i;
+    T acc_i;
     int ht;
     Node* left;
     Node* right;
@@ -29,7 +35,7 @@ class AVL {
     if (node == nullptr) {
       return;
     }
-    node->ht = std::max(GetHt(node->left), GetHt(node->right)) + 1;
+    node->ht = Max(GetHt(node->left), GetHt(node->right)) + 1;
   }
 
   Node* RLeft(Node* node) {
@@ -76,7 +82,7 @@ class AVL {
     return node;
   }
 
-  Node* Add(Node* node, int acc_i) {
+  Node* Add(Node* node, T acc_i) {
     if (node == nullptr) {
       Node* new_node = new Node;
       new_node->acc_i = acc_i;
@@ -95,7 +101,7 @@ class AVL {
     return Balance(node);
   }
 
-  int Next(Node* node, int i) {
+  T Next(Node* node, T i) {
     Node* current = node;
     Node* result = nullptr;
 
@@ -128,14 +134,15 @@ class AVL {
  public:
   AVL() : root_(nullptr) {}
 
-  void Add(int acc_i) { root_ = Add(root_, acc_i); }
+  void Add(T acc_i) { root_ = Add(root_, acc_i); }
 
-  int Find(int i) { return Next(root_, i); }
+  T Find(T i) { return Next(root_, i); }
 
   ~AVL() { DelAvl(root_); }
 };
 
-void Menu(AVL& myavl, int n) {
+
+void Menu(AVL<int>& myavl, int n) {
   int q;
   bool a = true;
   char operation;
@@ -160,8 +167,9 @@ void Menu(AVL& myavl, int n) {
 }
 
 int main() {
-  AVL avl;
+  AVL<int> avl;
   int n;
   std::cin >> n;
   Menu(avl, n);
+  return 0;
 }
