@@ -1,21 +1,27 @@
 #include <iostream>
 
-template <class T>
+template <typename T>
 T Max(const T& a, const T& b) {
   return (a > b) ? a : b;
 }
 
-template <class T>
+template <typename T>
+struct IsLess {
+  bool operator()(const T& l, const T& r) const { return l < r; }
+};
+
+template <class T, class TLess = IsLess<T>>
 class AVL {
  private:
   struct Node {
-    T acc_i;
+    T value;
     int ht;
     Node* left;
     Node* right;
   };
 
   Node* root_;
+  TLess less_;
 
   int GetHt(Node* node) {
     if (node == nullptr) {
@@ -82,20 +88,20 @@ class AVL {
     return node;
   }
 
-  Node* Add(Node* node, T acc_i) {
+  Node* Add(Node* node, T value) {
     if (node == nullptr) {
       Node* new_node = new Node;
-      new_node->acc_i = acc_i;
+      new_node->value = value;
       new_node->ht = 1;
       new_node->left = nullptr;
       new_node->right = nullptr;
       return new_node;
     }
 
-    if (acc_i < node->acc_i) {
-      node->left = Add(node->left, acc_i);
-    } else if (acc_i > node->acc_i) {
-      node->right = Add(node->right, acc_i);
+    if (less_(value, node->value)) {
+      node->left = Add(node->left, value);
+    } else if (less_(node->value, value)) {
+      node->right = Add(node->right, value);
     }
 
     return Balance(node);
@@ -106,7 +112,7 @@ class AVL {
     Node* result = nullptr;
 
     while (current != nullptr) {
-      if (current->acc_i >= i) {
+      if (less_(i, current->value)) {
         result = current;
         current = current->left;
       } else {
@@ -115,7 +121,7 @@ class AVL {
     }
 
     if (result != nullptr) {
-      return result->acc_i;
+      return result->value;
     }
 
     return -1;
@@ -134,13 +140,12 @@ class AVL {
  public:
   AVL() : root_(nullptr) {}
 
-  void Add(T acc_i) { root_ = Add(root_, acc_i); }
+  void Add(T value) { root_ = Add(root_, value); }
 
   T Find(T i) { return Next(root_, i); }
 
   ~AVL() { DelAvl(root_); }
 };
-
 
 void Menu(AVL<int>& myavl, int n) {
   int q;
@@ -156,9 +161,7 @@ void Menu(AVL<int>& myavl, int n) {
       }
       myavl.Add(value);
       a = true;
-    }
-
-    else {
+    } else {
       q = myavl.Find(value);
       std::cout << q << "\n";
       a = false;
@@ -167,7 +170,7 @@ void Menu(AVL<int>& myavl, int n) {
 }
 
 int main() {
-  AVL<int> avl;
+  AVL<int, IsLess<int>> avl;
   int n;
   std::cin >> n;
   Menu(avl, n);
