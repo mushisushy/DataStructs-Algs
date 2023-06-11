@@ -1,0 +1,178 @@
+#include <iostream>
+
+template <typename T>
+T Max(const T& a, const T& b) {
+  return (a > b) ? a : b;
+}
+
+template <typename T>
+struct IsLess {
+  bool operator()(const T& l, const T& r) const { return l < r; }
+};
+
+template <class T, class TLess = IsLess<T>>
+class AVL {
+ private:
+  struct Node {
+    T value;
+    int ht;
+    Node* left;
+    Node* right;
+  };
+
+  Node* root_;
+  TLess less_;
+
+  int GetHt(Node* node) {
+    if (node == nullptr) {
+      return 0;
+    }
+    return node->ht;
+  }
+
+  int BFact(Node* node) {
+    if (node == nullptr) {
+      return 0;
+    }
+    return GetHt(node->left) - GetHt(node->right);
+  }
+
+  void UpdHt(Node* node) {
+    if (node == nullptr) {
+      return;
+    }
+    node->ht = Max(GetHt(node->left), GetHt(node->right)) + 1;
+  }
+
+  Node* RLeft(Node* node) {
+    Node* new_root = node->right;
+    node->right = new_root->left;
+    new_root->left = node;
+
+    UpdHt(node);
+    UpdHt(new_root);
+
+    return new_root;
+  }
+
+  Node* RRight(Node* node) {
+    Node* new_root = node->left;
+    node->left = new_root->right;
+    new_root->right = node;
+
+    UpdHt(node);
+    UpdHt(new_root);
+
+    return new_root;
+  }
+
+  Node* Balance(Node* node) {
+    UpdHt(node);
+
+    int b_fact = BFact(node);
+
+    if (b_fact > 1) {
+      if (BFact(node->left) < 0) {
+        node->left = RLeft(node->left);
+      }
+      return RRight(node);
+    }
+
+    if (b_fact < -1) {
+      if (BFact(node->right) > 0) {
+        node->right = RRight(node->right);
+      }
+      return RLeft(node);
+    }
+
+    return node;
+  }
+
+  Node* Add(Node* node, T value) {
+    if (node == nullptr) {
+      Node* new_node = new Node;
+      new_node->value = value;
+      new_node->ht = 1;
+      new_node->left = nullptr;
+      new_node->right = nullptr;
+      return new_node;
+    }
+
+    if (less_(value, node->value)) {
+      node->left = Add(node->left, value);
+    } else if (less_(node->value, value)) {
+      node->right = Add(node->right, value);
+    }
+
+    return Balance(node);
+  }
+
+  T Next(Node* node, T i) {
+    Node* current = node;
+    Node* result = nullptr;
+
+    while (current != nullptr) {
+      if (less_(i, current->value)) {
+        result = current;
+        current = current->left;
+      } else {
+        current = current->right;
+      }
+    }
+
+    if (result != nullptr) {
+      return result->value;
+    }
+
+    return -1;
+  }
+
+  void DelAvl(Node* node) {
+    if (node == nullptr) {
+      return;
+    }
+
+    DelAvl(node->left);
+    DelAvl(node->right);
+    delete node;
+  }
+
+ public:
+  AVL() : root_(nullptr) {}
+
+  void Add(T value) { root_ = Add(root_, value); }
+
+  T Find(T i) { return Next(root_, i); }
+
+  ~AVL() { DelAvl(root_); }
+};
+
+void Menu(AVL<int>& myavl, int n) {
+  int q;
+  bool a = true;
+  char operation;
+  int value;
+  for (int i = 0; i < n; i++) {
+    std::cin >> operation >> value;
+
+    if (operation == '+') {
+      if (!a) {
+        value = (q + value) % 1000000000;
+      }
+      myavl.Add(value);
+      a = true;
+    } else {
+      q = myavl.Find(value);
+      std::cout << q << "\n";
+      a = false;
+    }
+  }
+}
+
+int main() {
+  AVL<int, IsLess<int>> avl;
+  int n;
+  std::cin >> n;
+  Menu(avl, n);
+  return 0;
+}
