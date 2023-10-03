@@ -1,0 +1,86 @@
+#include <iostream>
+#include <vector>
+
+std::vector<std::vector<unsigned long long>> multiplyMat(std::vector<std::vector<unsigned long long>> &a,
+                                                             std::vector<std::vector<unsigned long long>> &b) {
+    int s = a.size();
+    std::vector<std::vector<unsigned long long>> finalMat(s, std::vector<unsigned long long>(s,0));
+
+    for(int i = 0; i < s; i++) {
+        for( int j = 0; j < s; j++) {
+            for(int k = 0; k < s; k++) {
+                finalMat[i][j] = (finalMat[i][j] + (a[i][k] * b[k][j]) % 1000003) % 1000003;;
+            }
+        }
+    }
+    return finalMat;
+
+}
+
+std::vector<std::vector<unsigned long long>> matExpo(std::vector<std::vector<unsigned long long>> &a, unsigned long long n) {
+
+    if(n == 0) {
+        int s = a.size();
+        std::vector<std::vector<unsigned long long>> answer(s, std::vector<unsigned long long>(s, 0));
+        for(int i = 0; i < 5; i++) {
+            answer[i][i] = 1;
+        }
+        return answer;
+    }
+
+
+    if(n == 1) {
+        return a;
+    }
+
+    std::vector<std::vector<unsigned long long>> temp = matExpo(a, n/2);
+    std::vector<std::vector<unsigned long long>> answer = multiplyMat(temp, temp);
+
+    if(n%2 != 0) {
+        answer = multiplyMat(answer, a);
+    }
+
+    return answer;
+}
+
+
+unsigned long long stairsTotal(unsigned long long n) {
+
+
+    std::vector<std::vector<unsigned long long>> base(5, std::vector<unsigned long long>(5, 0));
+    int j = 8;
+    for(int i = 0; i < 4; i++) {
+        base[i][0] = j;
+        j = j/2;
+    }
+    base[4][0] = 1;
+
+
+    std::vector<std::vector<unsigned long long>> matrix = {{1, 1, 1, 1, 1},
+                                                           {1, 0, 0, 0, 0},
+                                                           {0, 1, 0, 0, 0},
+                                                           {0, 0, 1, 0, 0},
+                                                           {0, 0, 0, 1, 0}};
+
+    if (n == 0) {
+        return 0;
+    } else if (n == 1 || n == 2) {
+        return base[3][0];
+    } else if (n == 3) {
+        return base[2][0];
+    } else if (n == 4) {
+        return base[1][0];
+    } else if (n == 5) {
+        return base[0][0];
+    }
+
+    std::vector<std::vector<unsigned long long>> matrix2 = matExpo(matrix, n - 5);
+    std::vector<std::vector<unsigned long long>> answer = multiplyMat(matrix2, base);
+    return answer[0][0];
+}
+
+int main() {
+    unsigned long long n;
+    std::cin >> n;
+    std::cout << stairsTotal(n);
+}
