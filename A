@@ -1,0 +1,59 @@
+#include <iostream>
+#include <vector>
+
+
+std::vector<std::vector<unsigned long long>> multiplyMat(std::vector<std::vector<unsigned long long>> &a,
+                                                             std::vector<std::vector<unsigned long long>> &b) {
+    int s = a.size();
+    std::vector<std::vector<unsigned long long>> finalMat(s, std::vector<unsigned long long>(s,0));
+
+    for(int i = 0; i < s; i++) {
+        for( int j = 0; j < s; j++) {
+            for(int k = 0; k < s; k++) {
+                finalMat[i][j] = (finalMat[i][j] + (a[i][k] * b[k][j]) % 1000003) % 1000003;;
+            }
+        }
+    }
+    return finalMat;
+
+}
+
+
+std::vector<std::vector<unsigned long long>> matExpo(std::vector<std::vector<unsigned long long>> &a, unsigned long long n) {
+
+    if(n == 0) {
+        int s = a.size();
+        std::vector<std::vector<unsigned long long>> answer(s, std::vector<unsigned long long>(s, 0));
+        for(int i = 0; i < s; i++) {
+            answer[i][i] = 1;
+        }
+        return answer;
+    }
+
+
+    if(n == 1) {
+        return a;
+    }
+
+
+    std::vector<std::vector<unsigned long long>> temp = matExpo(a, n/2);
+    std::vector<std::vector<unsigned long long>> answer = multiplyMat(temp, temp);
+
+    if(n%2 != 0) {
+        answer = multiplyMat(answer, a);
+    }
+
+    return answer;
+}
+
+
+int main() {
+
+    unsigned long long n;
+    std::cin >> n;
+    unsigned long long int l = n - 1;
+    std::vector<std::vector<unsigned long long>> base = {{1,1}, {1,0}};
+    std::vector<std::vector<unsigned long long>> nth = matExpo(base, l);
+    std::cout << nth[0][1];
+
+}
