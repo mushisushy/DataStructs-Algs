@@ -1,0 +1,80 @@
+#include <iostream>
+#include <vector>
+
+struct DirectedEdge {
+  int src, dest;
+};
+
+class Graph {
+ public:
+  std::vector<std::vector<int>> adj;
+  std::vector<int> degree;
+
+  Graph(int n) { adj.resize(n); }
+
+  void AddEdge(std::vector<DirectedEdge> const& edges, int n) {
+    std::vector<int> temp(n, 0);
+    degree = temp;
+
+    for (long unsigned int i = 0; i < edges.size(); ++i) {
+      int src = edges[i].src;
+      int dest = edges[i].dest;
+      adj[src].push_back(dest);
+      degree[dest]++;
+    }
+  }
+
+  std::vector<int> DoTopS(Graph const& graph) {
+    std::vector<int> ans;
+    int n = graph.adj.size();
+    std::vector<int> degree = graph.degree;
+    std::vector<int> t;
+    for (int i = 0; i < n; i++) {
+      if (degree[i] == 0) {
+        t.push_back(i);
+      }
+    }
+    while (!t.empty()) {
+      int n = t.back();
+      t.pop_back();
+      ans.push_back(n);
+      for (int m : graph.adj[n]) {
+        degree[m] -= 1;
+        if (degree[m] == 0) {
+          t.push_back(m);
+        }
+      }
+    }
+    for (int i = 0; i < n; i++) {
+      if (degree[i] != 0) {
+        return {};
+      }
+    }
+    return ans;
+  }
+};
+
+int main() {
+  int n, m, e1, e2;
+  std::cin >> n >> m;
+  Graph graph(n);
+  std::vector<DirectedEdge> edges_v;
+
+  for (int i = 0; i < m; i++) {
+    std::cin >> e1 >> e2;
+    DirectedEdge e = {e1, e2};
+    edges_v.push_back(e);
+  }
+
+  graph.AddEdge(edges_v, n);
+  std::vector<int> l = graph.DoTopS(graph);
+
+  if (!l.empty()) {
+    std::cout << "YES\n";
+    for (int i : l) {
+      std::cout << i << " ";
+    }
+  } else {
+    std::cout << "NO";
+  }
+}
