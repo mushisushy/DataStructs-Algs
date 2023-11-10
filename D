@@ -1,0 +1,84 @@
+#include <climits>
+#include <iostream>
+#include <list>
+#include <vector>
+
+class Graph {
+ public:
+  std::vector<std::vector<int> > adj;
+
+  Graph(int n) { adj.resize(n); }
+
+  int Answer(int n, std::vector<int>& dist, std::vector<int>& dist2,
+             std::vector<int>& dist_dest) {
+    int a = n * 2;
+    for (int i = 0; i < n; ++i) {
+      if ((dist[i] + dist2[i] + dist_dest[i]) < a) {
+        a = dist[i] + dist2[i] + dist_dest[i];
+      }
+    }
+
+    return a;
+  }
+
+  void AddEdge(int src, int dest) {
+    adj[src].push_back(dest);
+    adj[dest].push_back(src);
+  }
+
+  void BFS(int source, int n, std::vector<int>& pred,
+           std::vector<int>& distance) {
+    std::list<int> queue;
+    std::vector<bool> visited(n, false);
+    for (int i = 0; i < n; i++) {
+      distance[i] = INT_MAX;
+      pred[i] = -1;
+    }
+    visited[source] = true;
+    distance[source] = 0;
+    queue.push_back(source);
+    while (!queue.empty()) {
+      int u = queue.front();
+      queue.pop_front();
+      for (long unsigned int i = 0; i < adj[u].size(); i++) {
+        if (!visited[adj[u][i]]) {
+          visited[adj[u][i]] = true;
+          distance[adj[u][i]] = distance[u] + 1;
+          pred[adj[u][i]] = u;
+          queue.push_back(adj[u][i]);
+        }
+      }
+    }
+  }
+
+  int ShortestDist(int s, int s2, int destination, int n) {
+    std::vector<int> pred(n, -1);
+    std::vector<int> dist(n, INT_MAX);
+    std::vector<int> pred2(n, -1);
+    std::vector<int> dist2(n, INT_MAX);
+    std::vector<int> pred_dest(n, -1);
+    std::vector<int> dist_dest(n, INT_MAX);
+
+    BFS(s, n, pred, dist);
+    BFS(s2, n, pred2, dist2);
+    BFS(destination, n, pred, dist_dest);
+
+    int a = Answer(n, dist, dist2, dist_dest);
+    return a;
+  }
+};
+
+int main() {
+  int n, m, l, mat, mil, e1, e2;
+  std::cin >> n >> m >> l >> mat >> mil;
+
+  Graph g(n + 1);
+
+  for (int i = 0; i < m; i++) {
+    std::cin >> e1 >> e2;
+    g.AddEdge(e1, e2);
+  }
+
+  int q = g.ShortestDist(l, mat, mil, (n + 1));
+  std::cout << q;
+}
