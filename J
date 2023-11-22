@@ -1,0 +1,43 @@
+#include <bitset>
+#include <iostream>
+#include <string>
+#include <vector>
+
+std::vector<std::bitset<1000>> PathsBetweenUniverses(
+    int n, std::vector<std::string>& universe_matrix) {
+  std::vector<std::bitset<1000>> connection_matrix(n);
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      if (universe_matrix[i][j] == '1') {
+        connection_matrix[i][j] = true;
+      }
+    }
+  }
+  for (int k = 0; k < n; ++k) {
+    for (int i = 0; i < n; ++i) {
+      if (connection_matrix[i][k]) {
+        connection_matrix[i] |= connection_matrix[k];
+      }
+    }
+  }
+
+  return connection_matrix;
+}
+
+int main() {
+  int n;
+  std::cin >> n;
+  std::vector<std::string> universe_matrix(n);
+  for (int i = 0; i < n; ++i) {
+    std::cin >> universe_matrix[i];
+  }
+  std::vector<std::bitset<1000>> connection_matrix =
+      PathsBetweenUniverses(n, universe_matrix);
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      std::cout << connection_matrix[i][j];
+    }
+    std::cout << "\n";
+  }
+}
