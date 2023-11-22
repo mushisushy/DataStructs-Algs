@@ -1,0 +1,68 @@
+#include <cstdint>
+#include <functional>
+#include <iostream>
+#include <limits>
+#include <queue>
+#include <vector>
+
+struct Edge {
+  uint64_t dest;
+  int weight;
+};
+
+class Graph {
+ public:
+  std::vector<std::vector<Edge>> adj;
+  Graph(uint64_t m, int a, int b) {
+    adj.resize(m);
+
+    for (uint64_t z = 0; z < m; z++) {
+      AddEdge(adj, z, (z + 1) % m, a);
+      AddEdge(adj, z, (z * z + 1) % m, b);
+    }
+  }
+
+  void AddEdge(std::vector<std::vector<Edge>>& adj, uint64_t src, uint64_t dest,
+               int weight) {
+    adj[src].push_back({dest, weight});
+  }
+
+  int MinLemonadeCost(uint64_t m, uint64_t x, uint64_t y) {
+    using ElementType = std::pair<int, uint64_t>;
+    std::priority_queue<ElementType, std::vector<ElementType>,
+                        std::greater<ElementType>>
+        pq;
+    std::vector<int> dist(m, std::numeric_limits<int>::max());
+    pq.push({0, x});
+    dist[x] = 0;
+    while (!pq.empty()) {
+      int current_dist = pq.top().first;
+      int current_node = pq.top().second;
+      pq.pop();
+
+      if (current_dist > dist[current_node]) {
+        continue;
+      }
+      for (long unsigned int i = 0; i < adj[current_node].size(); ++i) {
+        const Edge& edge = adj[current_node][i];
+        int neighbor = edge.dest;
+        int weight = edge.weight;
+
+        if (dist[current_node] + weight < dist[neighbor]) {
+          dist[neighbor] = dist[current_node] + weight;
+          pq.push({dist[neighbor], neighbor});
+        }
+      }
+    }
+    return dist[y];
+  }
+};
+
+int main() {
+  int a, b;
+  uint64_t m, x, y;
+  std::cin >> a >> b >> m >> x >> y;
+  Graph g(m, a, b);
+  int result = g.MinLemonadeCost(m, x, y);
+  std::cout << result;
+}
