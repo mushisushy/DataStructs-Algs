@@ -1,0 +1,86 @@
+#include <iostream>
+#include <limits>
+#include <queue>
+#include <vector>
+
+const int kInf = std::numeric_limits<int>::max();
+
+struct Edge {
+  int dest;
+  int weight;
+};
+
+class Graph {
+ public:
+  std::vector<std::vector<Edge>> adj;
+
+  Graph(int n, int k) {
+    n_ = n;
+    k_ = k;
+    adj.resize(n + 1);
+  }
+
+  void AddEdge(int src, int dest, int weight) {
+    adj[src].push_back({dest, weight});
+  }
+
+  int FinalResult(std::vector<std::vector<int>>& dist, int dest) {
+    int result = kInf;
+    for (int i = 0; i <= k_; ++i) {
+      result = std::min(result, dist[dest][i]);
+    }
+    return (result == kInf) ? -1 : result;
+  }
+
+  int ShortestPath(int src, int dest) {
+    using ElementType = std::pair<int, int>;
+    std::vector<std::vector<int>> dist(n_ + 1, std::vector<int>(k_ + 1, kInf));
+    std::priority_queue<std::pair<int, ElementType>,
+                        std::vector<std::pair<int, ElementType>>,
+                        std::greater<std::pair<int, ElementType>>>
+        pq;
+    pq.push({0, {src, 0}});
+    dist[src][0] = 0;
+    while (!pq.empty()) {
+      int curr_dist = pq.top().first;
+      int current_vertex = pq.top().second.first;
+      int edges_used = pq.top().second.second;
+      pq.pop();
+      if (curr_dist > dist[current_vertex][edges_used]) {
+        continue;
+      }
+      for (size_t i = 0; i < adj[current_vertex].size(); ++i) {
+        const Edge& neighbor = adj[current_vertex][i];
+        int next_vertex = neighbor.dest;
+        int weight = neighbor.weight;
+
+        if (edges_used < k_ &&
+            dist[next_vertex][edges_used + 1] > curr_dist + weight) {
+          dist[next_vertex][edges_used + 1] = curr_dist + weight;
+          pq.push({dist[next_vertex][edges_used + 1],
+                   {next_vertex, edges_used + 1}});
+        }
+      }
+    }
+    int a = FinalResult(dist, dest);
+    return a;
+  }
+
+ private:
+  int n_;
+  int k_;
+};
+
+int main() {
+  int n, m, k, s, f;
+  std::cin >> n >> m >> k >> s >> f;
+  Graph graph(n, k);
+
+  for (int i = 0; i < m; ++i) {
+    int src, dest, weight;
+    std::cin >> src >> dest >> weight;
+    graph.AddEdge(src, dest, weight);
+  }
+  int result = graph.ShortestPath(s, f);
+  std::cout << result;
+}
