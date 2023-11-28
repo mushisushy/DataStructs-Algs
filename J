@@ -3,41 +3,61 @@
 #include <string>
 #include <vector>
 
-std::vector<std::bitset<1000>> PathsBetweenUniverses(
-    int n, std::vector<std::string>& universe_matrix) {
-  std::vector<std::bitset<1000>> connection_matrix(n);
+class UniverseGraph {
+ public:
+  static const int kMaxsize = 1000;
 
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < n; ++j) {
-      if (universe_matrix[i][j] == '1') {
-        connection_matrix[i][j] = true;
+  UniverseGraph(int n, const std::vector<std::string>& universe_matrix)
+      : n_(n), universe_matrix_(universe_matrix) {}
+
+  std::vector<std::bitset<kMaxsize>> PathsBetweenUniverses() {
+    std::vector<std::bitset<kMaxsize>> connection_matrix(n_);
+
+    for (int i = 0; i < n_; ++i) {
+      for (int j = 0; j < n_; ++j) {
+        if (universe_matrix_[i][j] == '1') {
+          connection_matrix[i][j] = true;
+        }
       }
     }
-  }
-  for (int k = 0; k < n; ++k) {
-    for (int i = 0; i < n; ++i) {
-      if (connection_matrix[i][k]) {
-        connection_matrix[i] |= connection_matrix[k];
+
+    for (int k = 0; k < n_; ++k) {
+      for (int i = 0; i < n_; ++i) {
+        if (connection_matrix[i][k]) {
+          connection_matrix[i] |= connection_matrix[k];
+        }
       }
+    }
+
+    return connection_matrix;
+  }
+
+  void PrintConnectionMatrix() {
+    std::vector<std::bitset<kMaxsize>> connection_matrix =
+        PathsBetweenUniverses();
+
+    for (int i = 0; i < n_; ++i) {
+      for (int j = 0; j < n_; ++j) {
+        std::cout << connection_matrix[i][j];
+      }
+      std::cout << "\n";
     }
   }
 
-  return connection_matrix;
-}
+ private:
+  int n_;
+  std::vector<std::string> universe_matrix_;
+};
 
 int main() {
   int n;
   std::cin >> n;
   std::vector<std::string> universe_matrix(n);
+
   for (int i = 0; i < n; ++i) {
     std::cin >> universe_matrix[i];
   }
-  std::vector<std::bitset<1000>> connection_matrix =
-      PathsBetweenUniverses(n, universe_matrix);
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < n; ++j) {
-      std::cout << connection_matrix[i][j];
-    }
-    std::cout << "\n";
-  }
+
+  UniverseGraph universe_graph(n, universe_matrix);
+  universe_graph.PrintConnectionMatrix();
 }
