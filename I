@@ -1,0 +1,80 @@
+#include <iostream>
+#include <limits>
+#include <queue>
+#include <vector>
+
+const int kInf = std::numeric_limits<int>::max();
+
+struct Edge {
+  int dest;
+  int weight;
+};
+
+class Graph {
+ public:
+  std::vector<std::vector<Edge>> adj;
+
+  Graph(int n) {
+    n_ = n;
+    adj.resize(n + 1);
+  }
+
+  void AddEdge(int src, int dest, int weight) {
+    adj[src].push_back({dest, weight});
+  }
+  void ShortestPath(int n, int start, int dest, double& min_probability) {
+    std::vector<double> dist(n + 1, kInf);
+    dist[start] = 0;
+
+    std::priority_queue<std::pair<double, int>> q;
+    q.push({0, start});
+
+    while (!q.empty()) {
+      int current_node = q.top().second;
+      double current_prob = -q.top().first;
+      q.pop();
+
+      if (current_node == dest) {
+        min_probability = std::min(min_probability, current_prob);
+        continue;
+      }
+
+      for (size_t i = 0; i < adj[current_node].size(); ++i) {
+        const Edge& edge = adj[current_node][i];
+        int neighbor = edge.dest;
+        double chance = edge.weight / 100.0;
+
+        if (dist[current_node] + chance - dist[current_node] * chance <
+            dist[neighbor]) {
+          dist[neighbor] =
+              dist[current_node] + chance - dist[current_node] * chance;
+          q.push({-dist[neighbor], neighbor});
+        }
+      }
+    }
+  }
+
+ private:
+  int n_;
+};
+
+int main() {
+  int n, m, s, f;
+  std::cin >> n >> m >> s >> f;
+
+  Graph graph(n + 1);
+
+  for (int i = 0; i < m; ++i) {
+    int src, dest;
+    double weight;
+    std::cin >> src >> dest >> weight;
+    graph.AddEdge(src, dest, weight);
+    graph.AddEdge(dest, src, weight);
+  }
+
+  double min_probability = kInf;
+  graph.ShortestPath(n, s, f, min_probability);
+
+  std::cout.precision(2);
+  std::cout << std::noshowpoint << min_probability;
+}
