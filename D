@@ -1,7 +1,10 @@
 #include <climits>
 #include <iostream>
+#include <limits>
 #include <list>
 #include <vector>
+
+const int kINF = std::numeric_limits<int>::max();
 
 class Graph {
  public:
@@ -31,7 +34,7 @@ class Graph {
     std::list<int> queue;
     std::vector<bool> visited(n, false);
     for (int i = 0; i < n; i++) {
-      distance[i] = INT_MAX;
+      distance[i] = kINF;
       pred[i] = -1;
     }
     visited[source] = true;
@@ -53,11 +56,11 @@ class Graph {
 
   int ShortestDist(int s, int s2, int destination, int n) {
     std::vector<int> pred(n, -1);
-    std::vector<int> dist(n, INT_MAX);
+    std::vector<int> dist(n, kINF);
     std::vector<int> pred2(n, -1);
-    std::vector<int> dist2(n, INT_MAX);
+    std::vector<int> dist2(n, kINF);
     std::vector<int> pred_dest(n, -1);
-    std::vector<int> dist_dest(n, INT_MAX);
+    std::vector<int> dist_dest(n, kINF);
 
     BFS(s, n, pred, dist);
     BFS(s2, n, pred2, dist2);
@@ -69,8 +72,8 @@ class Graph {
 };
 
 int main() {
-  int n, m, l, mat, mil, e1, e2;
-  std::cin >> n >> m >> l >> mat >> mil;
+  int n, m, leon, matilda, milkshop, e1, e2;
+  std::cin >> n >> m >> leon >> matilda >> milkshop;
 
   Graph g(n + 1);
 
@@ -79,6 +82,6 @@ int main() {
     g.AddEdge(e1, e2);
   }
 
-  int q = g.ShortestDist(l, mat, mil, (n + 1));
+  int q = g.ShortestDist(leon, matilda, milkshop, (n + 1));
   std::cout << q;
 }
