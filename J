@@ -1,0 +1,63 @@
+#include <bitset>
+#include <iostream>
+#include <string>
+#include <vector>
+
+class UniverseGraph {
+ public:
+  static const int kMaxsize = 1000;
+
+  UniverseGraph(int n, const std::vector<std::string>& universe_matrix)
+      : n_(n), universe_matrix_(universe_matrix) {}
+
+  std::vector<std::bitset<kMaxsize>> PathsBetweenUniverses() {
+    std::vector<std::bitset<kMaxsize>> connection_matrix(n_);
+
+    for (int i = 0; i < n_; ++i) {
+      for (int j = 0; j < n_; ++j) {
+        if (universe_matrix_[i][j] == '1') {
+          connection_matrix[i][j] = true;
+        }
+      }
+    }
+
+    for (int k = 0; k < n_; ++k) {
+      for (int i = 0; i < n_; ++i) {
+        if (connection_matrix[i][k]) {
+          connection_matrix[i] |= connection_matrix[k];
+        }
+      }
+    }
+
+    return connection_matrix;
+  }
+
+  void PrintConnectionMatrix() {
+    std::vector<std::bitset<kMaxsize>> connection_matrix =
+        PathsBetweenUniverses();
+
+    for (int i = 0; i < n_; ++i) {
+      for (int j = 0; j < n_; ++j) {
+        std::cout << connection_matrix[i][j];
+      }
+      std::cout << "\n";
+    }
+  }
+
+ private:
+  int n_;
+  std::vector<std::string> universe_matrix_;
+};
+
+int main() {
+  int n;
+  std::cin >> n;
+  std::vector<std::string> universe_matrix(n);
+
+  for (int i = 0; i < n; ++i) {
+    std::cin >> universe_matrix[i];
+  }
+
+  UniverseGraph universe_graph(n, universe_matrix);
+  universe_graph.PrintConnectionMatrix();
+}
