@@ -1,0 +1,77 @@
+#include <algorithm>
+#include <climits>
+#include <cmath>
+#include <iostream>
+#include <vector>
+const int kMaxn = 100005;
+const int kDepth = 25;
+
+class ST {
+ public:
+  std::vector<std::vector<int>> table;
+
+  ST() : table(kMaxn, std::vector<int>(kDepth, 0)) {}
+
+  void BuildTable(const std::vector<int>& arr, int n) {
+    for (int i = 0; i < n; i++) {
+      table[i][0] = i;
+    }
+    for (int j = 1; (1 << j) <= n; j++) {
+      for (int i = 0; i + (1 << j) - 1 < n; i++) {
+        if (arr[table[i][j - 1]] < arr[table[i + (1 << (j - 1))][j - 1]]) {
+          table[i][j] = table[i][j - 1];
+        } else {
+          table[i][j] = table[i + (1 << (j - 1))][j - 1];
+        }
+      }
+    }
+  }
+
+  int QueryTable(const std::vector<int>& arr, int l, int r) {
+    int k = log2(r - l + 1);
+    if (arr[table[l][k]] < arr[table[r - (1 << k) + 1][k]]) {
+      return table[l][k];
+    }
+    return table[r - (1 << k) + 1][k];
+  }
+
+  int FindAns(const std::vector<int>& arr, int l, int r) {
+    int min_index = QueryTable(arr, l - 1, r - 1);
+    int second_order = INT_MAX;
+
+    if (l - 1 <= min_index - 1) {
+      second_order =
+          std::min(second_order, arr[QueryTable(arr, l - 1, min_index - 1)]);
+    }
+
+    if (min_index + 1 <= r - 1) {
+      second_order =
+          std::min(second_order, arr[QueryTable(arr, min_index + 1, r - 1)]);
+    }
+
+    return second_order;
+  }
+};
+
+int main() {
+  ST st;
+  int n;
+  std::cin >> n;
+
+  int q;
+  std::cin >> q;
+
+  std::vector<int> arr(n);
+  for (int i = 0; i < n; i++) {
+    std::cin >> arr[i];
+  }
+
+  st.BuildTable(arr, n);
+
+  for (int i = 0; i < q; i++) {
+    int l, r;
+    std::cin >> l >> r;
+    int x = st.FindAns(arr, l, r);
+    std::cout << x << "\n";
+  }
+}
