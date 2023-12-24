@@ -1,0 +1,105 @@
+#include <iostream>
+#include <limits>
+#include <vector>
+
+class SegmentedTree {
+ public:
+  struct Queryhandler {
+    int query_start;
+    int query_end;
+    int gunters;
+    Queryhandler(int l, int r, int gunters)
+        : query_start(l), query_end(r), gunters(gunters) {}
+  };
+
+  std::vector<int> segment_tree;
+  std::vector<int> initial_occupancy;
+  int capacity;
+  int n;
+
+  SegmentedTree(const std::vector<int>& initial_occupancy, int capacity)
+      : initial_occupancy(initial_occupancy), capacity(capacity) {
+    n = initial_occupancy.size();
+    segment_tree.resize(4 * n);
+    Build(0, 0, n - 1);
+  }
+
+  void Build(int node, int start, int end) {
+    if (start == end) {
+      segment_tree[node] = initial_occupancy[start];
+    } else {
+      int mid = (start + end) / 2;
+      Build(2 * node + 1, start, mid);
+      Build(2 * node + 2, mid + 1, end);
+      segment_tree[node] =
+          std::max(segment_tree[2 * node + 1], segment_tree[2 * node + 2]);
+    }
+  }
+
+  void UpdateSegment(int node, int start, int end,
+                     const Queryhandler& handler) {
+    if (start > handler.query_end || end < handler.query_start) {
+      return;
+    }
+
+    if (start == end) {
+      segment_tree[node] += handler.gunters;
+      return;
+    }
+
+    int mid = (start + end) / 2;
+    UpdateSegment(2 * node + 1, start, mid, handler);
+    UpdateSegment(2 * node + 2, mid + 1, end, handler);
+
+    segment_tree[node] =
+        std::max(segment_tree[2 * node + 1], segment_tree[2 * node + 2]);
+  }
+
+  int MaxForSegment(int node, int start, int end, int l, int r) {
+    if (l > end || start > r) {
+      return std::numeric_limits<int>::min();
+    }
+
+    if (start >= l && end <= r) {
+      return segment_tree[node];
+    }
+
+    int mid = (start + end) / 2;
+    int left_value = MaxForSegment(2 * node + 1, start, mid, l, r);
+    int right_value = MaxForSegment(2 * node + 2, mid + 1, end, l, r);
+    return std::max(left_value, right_value);
+  }
+
+  bool Query(const Queryhandler& handler, int n) {
+    int max_segment =
+        MaxForSegment(0, 0, n - 1, handler.query_start, handler.query_end);
+    return (max_segment + handler.gunters <= capacity);
+  }
+};
+
+int main() {
+  int number_igloos, number_attempts, capacity;
+  std::cin >> number_igloos;
+
+  std::vector<int> initial_occupancy(number_igloos);
+  for (int i = 0; i < number_igloos; ++i) {
+    std::cin >> initial_occupancy[i];
+  }
+
+  std::cin >> capacity;
+  std::cin >> number_attempts;
+  SegmentedTree segment_tree(initial_occupancy, capacity);
+
+  for (int i = 0; i < number_attempts; ++i) {
+    int l, r, new_gunters;
+    std::cin >> l >> r >> new_gunters;
+    SegmentedTree::Queryhandler handler(l, r, new_gunters);
+    bool result = segment_tree.Query(handler, number_igloos);
+
+    if (result) {
+      segment_tree.UpdateSegment(0, 0, number_igloos - 1, handler);
+    } else {
+      std::cout << i << "\n";
+    }
+  }
+}
