@@ -1,0 +1,71 @@
+#include <bitset>
+#include <iostream>
+#include <vector>
+
+class NimGame {
+ private:
+  std::vector<int> game_states;
+  std::vector<int> move_set;
+
+ public:
+  NimGame() { game_states.resize(10001, 0); }
+
+  void readMove(int set_count) {
+    move_set.resize(set_count);
+    for (int i = 0; i < set_count; i++) std::cin >> move_set[i];
+    int k = 1, tmp;
+    int count = set_count;
+    while (k) {
+      k = 0;
+      for (int i = 1; i < count; i++) {
+        if (move_set[i] < move_set[i - 1]) {
+          tmp = move_set[i];
+          move_set[i] = move_set[i - 1];
+          move_set[i - 1] = tmp;
+          k = 1;
+        }
+      }
+      count--;
+    }
+  }
+
+  void compute() {
+    std::bitset<100> move_transition;
+    for (int i = 1; i < 10001; i++) {
+      move_transition.reset();
+      for (size_t j = 0; j < move_set.size() && move_set[j] <= i; j++) {
+        int tmp = i - move_set[j];
+        int k = game_states[tmp];
+        move_transition.set(k);
+      }
+      int k = 0;
+      while (move_transition.test(k)) k++;
+      game_states[i] = k;
+    }
+  }
+
+  char playGame() {
+    int curr_state = 0;
+    int heap_count;
+    std::cin >> heap_count;
+    std::vector<int> heaps(heap_count, 0);
+    for (int i = 0; i < heap_count; i++) std::cin >> heaps[i];
+
+    for (int i = 0; i < heap_count; i++) curr_state ^= game_states[heaps[i]];
+
+    return (curr_state == 0 ? 'L' : 'W');
+  }
+};
+
+int main() {
+  int set_count, game_count;
+  std::cin >> set_count;
+  NimGame nimGame;
+  nimGame.readMove(set_count);
+  nimGame.compute();
+  std::cin >> game_count;
+  while (game_count--) {
+    std::cout << nimGame.playGame();
+  }
+  return 0;
+}
