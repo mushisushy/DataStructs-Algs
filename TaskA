@@ -1,0 +1,48 @@
+#include <climits>
+#include <iostream>
+#include <vector>
+
+class GuessAmount {
+  std::vector<std::vector<int>> table;
+
+  int maxSolution(int num, int initial, int length) {
+    int cost =
+        std::max(table[initial][num - 1], table[num + 1][initial + length - 1]);
+    return num + cost;
+  }
+
+  int minCost(int start, int end) {
+    int n = end - start + 1;
+    table.resize(n + 1, std::vector<int>(n + 1, 0));
+
+    for (int length = 2; length <= n; ++length) {
+      for (int initialVal = 1; initialVal <= n - length + 1; ++initialVal) {
+        int minimumCost = INT_MAX;
+        for (int currentVal = initialVal; currentVal < initialVal + length - 1;
+             ++currentVal) {
+          int maxSolCost =
+              currentVal +
+              std::max(table[initialVal][currentVal - 1],
+                       table[currentVal + 1][initialVal + length - 1]);
+          minimumCost = std::min(maxSolCost, minimumCost);
+        }
+        table[initialVal][initialVal + length - 1] = minimumCost;
+      }
+    }
+    return table[1][n];
+  }
+
+ public:
+  int getMoneyAmount(int n) { return minCost(1, n); }
+};
+
+int main() {
+  GuessAmount guessamount;
+
+  int n;
+  std::cin >> n;
+  int result = guessamount.getMoneyAmount(n);
+  std::cout << result;
+
+  return 0;
+}
