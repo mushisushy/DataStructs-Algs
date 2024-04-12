@@ -1,0 +1,61 @@
+#include <iostream>
+#include <map>
+#include <set>
+#include <vector>
+using namespace std;
+
+class ZtoString {
+ private:
+  string input;
+  int count;
+  vector<int> zvals;
+  map<int, set<char>> mismatch;
+
+ public:
+  ZtoString(const string& input_str) : input(input_str), count(0) {}
+
+  void getVals() {
+    size_t pos;
+    while ((pos = input.find(' ')) != string::npos) {
+      zvals.push_back(stoi(input.substr(0, pos)));
+      count += 1;
+      input.erase(0, pos + 1);
+    }
+    zvals.push_back(stoi(input));
+    count += 1;
+    zvals[0] = 0;
+  }
+
+  string calculateZValues() {
+    string s(count, '-');
+    s[0] = 'a';
+
+    for (int i = 1; i < count; i++) {
+      int j = 0;
+      for (; j < zvals[i]; j++) {
+        if (i + j < count) s[i + j] = s[j];
+      }
+      mismatch[i + j].insert(s[j]);
+      if (s[i] != '-') continue;
+
+      char minc = 'b';
+      for (; minc < 'z'; minc++) {
+        if (mismatch[i].find(minc) == mismatch[i].end()) break;
+      }
+      s[i] = minc;
+    }
+
+    return s;
+  }
+
+  void printResult(const string& result) { cout << result << endl; }
+};
+
+int main() {
+  string input;
+  getline(cin, input);
+  ZtoString z_algo(input);
+  z_algo.getVals();
+  string result = z_algo.calculateZValues();
+  z_algo.printResult(result);
+}
