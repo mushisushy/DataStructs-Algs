@@ -13,16 +13,16 @@ class NimGame {
   void readMove(int set_count) {
     move_set.resize(set_count);
     for (int i = 0; i < set_count; i++) std::cin >> move_set[i];
-    int k = 1, tmp;
+    int curr = 1, tmp;
     int count = set_count;
-    while (k) {
-      k = 0;
+    while (curr) {
+      curr = 0;
       for (int i = 1; i < count; i++) {
         if (move_set[i] < move_set[i - 1]) {
           tmp = move_set[i];
           move_set[i] = move_set[i - 1];
           move_set[i - 1] = tmp;
-          k = 1;
+          curr = 1;
         }
       }
       count--;
@@ -35,12 +35,12 @@ class NimGame {
       move_transition.reset();
       for (size_t j = 0; j < move_set.size() && move_set[j] <= i; j++) {
         int tmp = i - move_set[j];
-        int k = game_states[tmp];
-        move_transition.set(k);
+        int count = game_states[tmp];
+        move_transition.set(count);
       }
-      int k = 0;
-      while (move_transition.test(k)) k++;
-      game_states[i] = k;
+      int count = 0;
+      while (move_transition.test(count)) count++;
+      game_states[i] = count;
     }
   }
 
