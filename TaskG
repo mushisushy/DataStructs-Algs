@@ -1,0 +1,120 @@
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <vector>
+
+struct Vector {
+  double x, y, z;
+  Vector(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
+
+  Vector operator-(const Vector& o) {
+    return Vector(x - o.x, y - o.y, z - o.z);
+  }
+  Vector operator+(const Vector& o) {
+    return Vector(x + o.x, y + o.y, z + o.z);
+  }
+  Vector operator*(const double& s) { return Vector(s * x, s * y, s * z); }
+  Vector cross(const Vector& o) {
+    return Vector(y * o.z - z * o.y, z * o.x - x * o.z, x * o.y - y * o.x);
+  }
+  double dot(const Vector& o) { return x * o.x + y * o.y + z * o.z; }
+  double mag() { return sqrt(x * x + y * y + z * z); }
+};
+
+double computeDeterminant(Vector r1, Vector r2, Vector r3) {
+  double d = 0.0;
+  d = (r1.x * (r2.y * r3.z - r2.z * r3.y)) -
+      (r1.y * (r2.x * r3.z - r2.z * r3.x)) +
+      (r1.z * (r2.x * r3.y - r2.y * r3.x));
+  return d;
+}
+
+struct Line {
+  Vector point1, direction_ratio;
+
+  Line(Vector _point1, Vector _direction_ratio)
+      : point1(_point1), direction_ratio(_direction_ratio) {}
+  Line(double x1, double y1, double z1, double x2, double y2, double z2)
+      : point1(x1, y1, z1), direction_ratio(x2 - x1, y2 - y1, z2 - z1) {}
+
+  bool isParallel(const Line& l) {
+    return ((direction_ratio.cross(l.direction_ratio)).mag() < 1e-9);
+  }
+
+  double shortestDistanceRivers(Line& l) {
+    Vector dr1 = direction_ratio;
+    Vector dr2 = l.direction_ratio;
+    double mag_dr1 = dr1.mag();
+    double mag_dr2 = dr2.mag();
+
+    Vector unitv_dr1 = dr1 * (1.0 / mag_dr1);
+    Vector unitv_dr2 = dr2 * (1.0 / mag_dr2);
+
+    Vector cross = unitv_dr1.cross(unitv_dr2);
+    double denorm = pow(cross.mag(), 2.0);
+
+    if (denorm < 1e-9) {
+      double proj1 = unitv_dr1.dot(l.point1 - point1);
+      double proj2 = unitv_dr1.dot(l.point1 + l.direction_ratio - point1);
+
+      if (proj1 <= 0.0 && proj1 >= proj2) {
+        if (std::abs(proj1) < std::abs(proj2)) return (point1 - l.point1).mag();
+        return (point1 - l.point1 - l.direction_ratio).mag();
+      } else if (proj1 >= mag_dr1 && proj1 <= proj2) {
+        if (std::abs(proj1) < std::abs(proj2))
+          return (point1 + direction_ratio - l.point1).mag();
+        return (point1 + direction_ratio - l.point1 - l.direction_ratio).mag();
+      }
+
+      return (((unitv_dr1 * proj1) + point1) - l.point1).mag();
+    }
+
+    Vector start_points_diff = l.point1 - point1;
+    double detA = computeDeterminant(start_points_diff, unitv_dr2, cross);
+    double detB = computeDeterminant(start_points_diff, unitv_dr1, cross);
+    double param_t1 = detA / denorm;
+    double param_t2 = detB / denorm;
+
+    Vector _V1_shortest_dist = point1 + (unitv_dr1 * param_t1);
+    Vector _V2_shortest_dist = l.point1 + (unitv_dr2 * param_t2);
+
+    if (param_t1 < 0.0) _V1_shortest_dist = point1;
+    if (param_t1 > mag_dr1) _V1_shortest_dist = point1 + direction_ratio;
+    if (param_t2 < 0) _V2_shortest_dist = l.point1;
+    if (param_t2 > mag_dr2) _V2_shortest_dist = l.point1 + l.direction_ratio;
+
+    double rescale = 0.0;
+    if (param_t1 < 0.0 || param_t1 > mag_dr1) {
+      rescale = unitv_dr2.dot(_V1_shortest_dist - l.point1);
+      if (rescale < 0.0) rescale = 0.0;
+      if (rescale > mag_dr2) rescale = mag_dr2;
+      _V2_shortest_dist = l.point1 + (unitv_dr2 * rescale);
+    }
+
+    if (param_t2 < 0.0 || param_t2 > mag_dr2) {
+      rescale = unitv_dr1.dot(_V2_shortest_dist - point1);
+      if (rescale < 0.0) rescale = 0.0;
+      if (rescale > mag_dr1) rescale = mag_dr1;
+      _V1_shortest_dist = point1 + (unitv_dr1 * rescale);
+    }
+
+    return (_V1_shortest_dist - _V2_shortest_dist).mag();
+  }
+};
+
+int main() {
+  int coordinates;
+  std::vector<int> river_points;
+
+  while (std::cin >> coordinates) river_points.push_back(coordinates);
+
+  Line l1(river_points[0], river_points[1], river_points[2], river_points[3],
+          river_points[4], river_points[5]);
+  Line l2(river_points[6], river_points[7], river_points[8], river_points[9],
+          river_points[10], river_points[11]);
+
+  std::cout << std::fixed << std::setprecision(6)
+            << l1.shortestDistanceRivers(l2);
+
+  return 0;
+}
