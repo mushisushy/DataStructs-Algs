@@ -1,0 +1,67 @@
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <vector>
+
+class PrefValsToString {
+ private:
+  std::vector<int> pvals;
+  int count;
+
+ public:
+  PrefValsToString(const std::string& input) {
+    std::istringstream inputstr(input);
+    pvals = std::vector<int>((std::istream_iterator<int>(inputstr)),
+                             std::istream_iterator<int>());
+    if (!pvals.empty()) {
+      pvals[0] = 0;
+    }
+    count = pvals.size();
+  }
+
+  std::string getString() {
+    if (count == 0) return "";
+
+    std::string s(count, '-');
+    s[0] = 'a';
+    std::string mismatch(2 * count, 'b');
+    char final_mismatch = 'b';
+    int mismatch_index = 0;
+    char curr_mismatch = 'b';
+
+    for (int i = 1; i < count; i++) {
+      if (pvals[i] != 0)
+        s[i] = s[pvals[i] - 1];
+      else
+        s[i] = final_mismatch;
+
+      final_mismatch = 'b';
+      if (pvals[i] - 1 < 0) {
+        mismatch_index = -1;
+      } else {
+        mismatch_index = pvals[i] - 1;
+      }
+
+      if (mismatch_index == -1) continue;
+      final_mismatch = mismatch[mismatch_index];
+      curr_mismatch = s[pvals[i]];
+      if (final_mismatch < (char)(curr_mismatch + 1))
+        final_mismatch = (char)(curr_mismatch + 1);
+      mismatch[i] = final_mismatch;
+    }
+
+    return s;
+  }
+};
+
+int main() {
+  std::string input;
+  getline(std::cin, input);
+
+  PrefValsToString pfToString(input);
+  std::string final_result = pfToString.getString();
+
+  std::cout << final_result;
+  return 0;
+}
